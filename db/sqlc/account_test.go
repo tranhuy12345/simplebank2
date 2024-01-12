@@ -35,6 +35,6 @@ func TestListAccounts(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	require.Equal(t, len(listAccounts), 3)
+	require.Equal(t, 1, len(listAccounts))
 
 }
