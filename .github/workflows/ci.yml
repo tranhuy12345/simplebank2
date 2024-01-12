@@ -26,7 +26,7 @@ jobs:
           POSTGRES_PASSWORD: mysecret
           POSTGRES_DB: simple_bank
         ports:
-          - 5433:5432
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -45,7 +45,7 @@ jobs:
     - name: Install golang-migration
       run: |
         curl -L https://github.com/golang-migrate/migrate/releases/download/v4.17.0/migrate.darwin-amd64.tar.gz | tar xvz
-        sudo mv migrate /usr/bin/
+        sudo mv migrate /usr/bin/migrate
         which migrate
 
     - name: Run migration
