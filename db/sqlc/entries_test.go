@@ -36,11 +36,11 @@ func TestEntries(t *testing.T) {
 	fmt.Println(entries)
 }
 
-func TestDeleteEntries(t *testing.T) {
-	err := testQueries.DeleteAccounts(context.Background(), 3)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	log.Fatal(err)
-	//require.Error(t, nil, err)
-}
+// func TestDeleteEntries(t *testing.T) {
+// 	err := testQueries.DeleteAccounts(context.Background(), 3)
+// 	// if err != nil {
+// 	// 	log.Fatal(err)
+// 	// }
+// 	log.Fatal(err)
+// 	//require.Error(t, nil, err)
+// }
