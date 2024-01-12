@@ -15,7 +15,7 @@ func TestEntries(t *testing.T) {
 
 	var account Accounts
 
-	accounted, err := testQueries.GetAccountForUpdate(context.Background(), 3)
+	accounted, err := testQueries.GetAccountForUpdate(context.Background(), 1)
 	if err != nil {
 		log.Fatal(err)
 	}
