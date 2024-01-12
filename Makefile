@@ -5,7 +5,7 @@ createdb:
 dropdb:
 	docker exec -it postgres15 dropdb simple_bank
 migrationup:
-	migrate -path db/migration -database "postgresql://root:mysecret@localhost:5432/simple_bank?sslmode=disable" -verbose up
+	migrate -path db/migration -database "postgresql://root:mysecret@localhost:5433/simple_bank?sslmode=disable" -verbose up
 migrationdown:
 	migrate -path db/migration -database "postgresql://root:mysecret@localhost:5433/simple_bank?sslmode=disable" -verbose down
 opencommand:
