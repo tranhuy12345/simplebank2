@@ -18,7 +18,7 @@ var testDB *sql.DB
 
 const (
 	dbDriver = "pgx"
-	dbSource = "postgresql://root:mysecret@localhost:5433/simple_bank?sslmode=disable"
+	dbSource = "postgresql://root:mysecret@localhost:5432/simple_bank?sslmode=disable"
 )
 
 func TestMain(m *testing.M) {
