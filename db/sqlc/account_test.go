@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"db/db/util"
+	"fmt"
 	"log"
 	"testing"
 
@@ -10,8 +11,9 @@ import (
 )
 
 func createdAccountRandom(t *testing.T) Accounts {
+	user := createdUserRandom(t)
 	argument := CreateAccountParams{
-		Owner:    util.RandomOwner(),
+		Owner:    user.Username,
 		Balance:  util.RandomMoney(),
 		Currency: util.RandomCurrency(),
 	}
@@ -30,8 +32,11 @@ func TestAccount(t *testing.T) {
 }
 
 func TestListAccounts(t *testing.T) {
-	var listAccounts []Accounts
-	listAccounts, err := testQueries.ListAccounts(context.Background())
+	var listAccounts []ListQueryRow
+	listAccounts, err := testQueries.ListQuery(context.Background())
+	for i := 0; i < 5; i++ {
+		fmt.Println(listAccounts[i])
+	}
 	if err != nil {
 		log.Fatal(err)
 	}

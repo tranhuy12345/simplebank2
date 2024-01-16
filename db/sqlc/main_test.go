@@ -2,28 +2,26 @@ package db
 
 import (
 	"database/sql"
+	"db/db/util"
 	"log"
 	"os"
 	"testing"
 
 	//_ "github.com/lib/pq"
 
+	_ "github.com/lib/pq"
 	_ "github.com/stretchr/testify/require"
 	_ "gorm.io/driver/postgres"
-	_ "gorm.io/gorm"
 )
 
 var testQueries *Queries
 var testDB *sql.DB
 
-const (
-	dbDriver = "pgx"
-	dbSource = "postgresql://root:mysecret@localhost:5432/simple_bank?sslmode=disable"
-)
-
 func TestMain(m *testing.M) {
+	var config util.Config
 	var err error
-	testDB, err = sql.Open(dbDriver, dbSource)
+	config, err = util.LoadConfig("../..")
+	testDB, err = sql.Open(config.DBDriver, config.DBSource)
 	if err != nil {
 		log.Fatal(err)
 	}

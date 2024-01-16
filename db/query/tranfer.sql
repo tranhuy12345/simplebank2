@@ -23,3 +23,7 @@ WHERE id = $1;
 
 -- name: DeleteTransfers :exec
 DELETE FROM transfers WHERE id = $1;
+
+
+-- name: DeleteTransfersByAccountId :exec
+DELETE FROM transfers WHERE from_account_id = sqlc.arg(account_id) or to_account_id = sqlc.arg(account_id);

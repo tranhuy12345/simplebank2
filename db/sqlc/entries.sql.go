@@ -48,6 +48,15 @@ func (q *Queries) DeleteEntries(ctx context.Context, id int64) error {
 	return err
 }
 
+const deleteEntriesByAccountId = `-- name: DeleteEntriesByAccountId :exec
+DELETE FROM entries WHERE account_id = $1
+`
+
+func (q *Queries) DeleteEntriesByAccountId(ctx context.Context, accountID sql.NullInt64) error {
+	_, err := q.db.ExecContext(ctx, deleteEntriesByAccountId, accountID)
+	return err
+}
+
 const getEntries = `-- name: GetEntries :one
 SELECT id, account_id, amount, created_at FROM entries
 WHERE id = $1 LIMIT 1
@@ -76,7 +85,7 @@ func (q *Queries) ListEntries(ctx context.Context) ([]Entries, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Entries
+	items := []Entries{}
 	for rows.Next() {
 		var i Entries
 		if err := rows.Scan(

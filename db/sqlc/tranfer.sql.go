@@ -56,6 +56,15 @@ func (q *Queries) DeleteTransfers(ctx context.Context, id int64) error {
 	return err
 }
 
+const deleteTransfersByAccountId = `-- name: DeleteTransfersByAccountId :exec
+DELETE FROM transfers WHERE from_account_id = $1 or to_account_id = $1
+`
+
+func (q *Queries) DeleteTransfersByAccountId(ctx context.Context, accountID sql.NullInt64) error {
+	_, err := q.db.ExecContext(ctx, deleteTransfersByAccountId, accountID)
+	return err
+}
+
 const getTransfers = `-- name: GetTransfers :one
 SELECT id, from_account_id, to_account_id, amount, created_at FROM transfers
 WHERE id = $1 LIMIT 1
@@ -85,7 +94,7 @@ func (q *Queries) ListTransfers(ctx context.Context) ([]Transfers, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Transfers
+	items := []Transfers{}
 	for rows.Next() {
 		var i Transfers
 		if err := rows.Scan(

@@ -2,41 +2,28 @@ package main
 
 import (
 	"fmt"
-	"sync"
+	"time"
 )
 
-const (
-	dbDriver = "pgx"
-	dbSource = "postgresql://root:mysecret@localhost:5433/simple_bank?sslmode=disable"
-)
-
-type Person struct {
-	ID      uint   `gorm:"primaryKey"`
-	Name    string `gorm:"column:name"`
-	Age     int    `gorm:"column:age"`
-	Address string `gorm:"column:adrress"`
-}
-
-var wg sync.WaitGroup
+// const (
+// 	dbDriver = "pgx"
+// 	dbSource = "postgresql://root:mysecret@localhost:5433/simple_bank?sslmode=disable"
+// 	address  = "0.0.0.0:8080"
+// )
 
 func main() {
-	//var wg sync.WaitGroup
-	go sayHello()
+	// config, err := util.LoadConfig(".")
+	// conn, err := sql.Open(config.DBDriver, config.DBSource)
+	// if err != nil {
+	// 	log.Fatal("cannot load config DB:", err)
+	// }
 
-	for i := 0; i < 5; i++ {
-		fmt.Println("World")
-
-	}
-	//time.Sleep(1 * time.Millisecond)
-	wg.Wait()
-}
-
-func sayHello() {
-
-	wg.Add(1)
-	for i := 0; i < 5; i++ {
-		fmt.Println("Hello")
-		//time.Sleep(100 * time.Millisecond)
-	}
-	wg.Done()
+	// store := db.NewStore(conn)
+	// server := api.NewServer(store)
+	// err = server.Start(config.ServerAddress)
+	// if err != nil {
+	// 	log.Fatal("cannot load config SV:", err)
+	// }
+	fmt.Println(time.Now().Unix())
+	fmt.Println(time.Now().Add(time.Hour).Unix())
 }

@@ -7,20 +7,26 @@ import (
 	"time"
 )
 
-type Store struct {
+type Store interface {
+	Querier
+	TransfersTX(ctx context.Context, arg TransfersTxParams) (TransferTxResult, error)
+	DeleteAccountsTX(ctx context.Context, arg DeleteAccountsTXParams) error
+}
+
+type SQLStore struct {
 	*Queries         // Kế thừa những pt từ Queries
 	db       *sql.DB //dùng để gọi Transaction
 }
 
-func NewStore(db *sql.DB) *Store {
-	return &Store{
+func NewStore(db *sql.DB) Store {
+	return &SQLStore{
 		Queries: New(db),
 		db:      db,
 	}
 }
 
 // fnc : 1 chuỗi các queries
-func (store *Store) execTx(ctx context.Context, fnc func(q *Queries) error) error {
+func (store *SQLStore) execTx(ctx context.Context, fnc func(q *Queries) error) error {
 	tx, err := store.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -53,7 +59,7 @@ type TransferTxResult struct {
 
 var txKey = struct{}{}
 
-func (store *Store) TransfersTX(ctx context.Context, arg TransfersTxParams) (TransferTxResult, error) {
+func (store *SQLStore) TransfersTX(ctx context.Context, arg TransfersTxParams) (TransferTxResult, error) {
 	var result TransferTxResult
 	//Bat dau transaction
 	err := store.execTx(ctx, func(q *Queries) error {
@@ -132,4 +138,33 @@ func (store *Store) TransfersTX(ctx context.Context, arg TransfersTxParams) (Tra
 		return result, err
 	}
 	return result, nil
+}
+
+type DeleteAccountsTXParams struct {
+	ID int64 `json:"id"`
+}
+
+func (store *SQLStore) DeleteAccountsTX(ctx context.Context, arg DeleteAccountsTXParams) error {
+	err := store.execTx(ctx, func(q *Queries) error {
+		var err error
+		//Xóa Entries thuộc về account
+		err = q.DeleteEntriesByAccountId(ctx, sql.NullInt64{Int64: arg.ID, Valid: true})
+		if err != nil {
+			return err
+		}
+		//Xóa tranfers thuộc về account
+		err = q.DeleteTransfersByAccountId(ctx, sql.NullInt64{Int64: arg.ID, Valid: true})
+		if err != nil {
+			return err
+		}
+		err = q.DeleteAccounts(ctx, arg.ID)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }

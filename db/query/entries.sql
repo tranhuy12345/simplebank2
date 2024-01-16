@@ -23,5 +23,7 @@ WHERE id = $1;
 -- name: DeleteEntries :exec
 DELETE FROM entries WHERE id = $1;
 
+-- name: DeleteEntriesByAccountId :exec
+DELETE FROM entries WHERE account_id = $1;
 
 
