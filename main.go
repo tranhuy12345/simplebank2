@@ -1,8 +1,11 @@
 package main
 
 import (
-	"fmt"
-	"time"
+	"database/sql"
+	"db/api"
+	db "db/db/sqlc"
+	"db/db/util"
+	"log"
 )
 
 // const (
@@ -12,18 +15,19 @@ import (
 // )
 
 func main() {
-	// config, err := util.LoadConfig(".")
-	// conn, err := sql.Open(config.DBDriver, config.DBSource)
-	// if err != nil {
-	// 	log.Fatal("cannot load config DB:", err)
-	// }
+	config, err := util.LoadConfig(".")
+	conn, err := sql.Open(config.DBDriver, config.DBSource)
+	if err != nil {
+		log.Fatal("cannot load config DB:", err)
+	}
 
-	// store := db.NewStore(conn)
-	// server := api.NewServer(store)
-	// err = server.Start(config.ServerAddress)
-	// if err != nil {
-	// 	log.Fatal("cannot load config SV:", err)
-	// }
-	fmt.Println(time.Now().Unix())
-	fmt.Println(time.Now().Add(time.Hour).Unix())
+	store := db.NewStore(conn)
+	server, err := api.NewServer(config, store)
+	if err != nil {
+		log.Fatal("cannot load config SV:", err)
+	}
+	err = server.Start(config.ServerAddress)
+	if err != nil {
+		log.Fatal("cannot load config SV:", err)
+	}
 }
