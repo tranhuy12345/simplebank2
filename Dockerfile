@@ -1,4 +1,4 @@
-FROM winamd64/golang:1.21-windowsservercore-1809
+FROM golang:1.21.6-alpine3.18
 WORKDIR /app
 COPY . .
 RUN go build -o main main.go
