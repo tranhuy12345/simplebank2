@@ -3,6 +3,8 @@ package api
 import (
 	"database/sql"
 	db "db/db/sqlc"
+	"db/token"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -11,7 +13,7 @@ import (
 )
 
 type createAccountRequest struct {
-	Owner    string `json:"owner" binding:"required"`
+	//Owner    string `json:"owner" binding:"required"`
 	Currency string `json:"currency" binding:"required,currency"`
 }
 
@@ -25,8 +27,10 @@ func (s *Server) createAccount(c *gin.Context) {
 		return
 	}
 	//Insert vào database
+	//Vì có middleware nên owner phải lấy từ payload ra để user nào thì chỉ tạo được account của user đó
+	authorPayLoad := c.MustGet(authorizationPayloadKey).(*token.Payload)
 	arg := db.CreateAccountParams{
-		Owner:    req.Owner,
+		Owner:    authorPayLoad.Username,
 		Currency: req.Currency,
 		Balance:  0,
 	}
@@ -68,6 +72,12 @@ func (s *Server) getAccount(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errResponse(err))
 		return
 	}
+	authorPayLoad := c.MustGet(authorizationPayloadKey).(*token.Payload)
+	if account.Owner != authorPayLoad.Username {
+		err := errors.New("Account is not belong to user is logged")
+		c.JSON(http.StatusBadRequest, errResponse(err))
+		return
+	}
 	c.JSON(http.StatusOK, account)
 
 }
@@ -84,8 +94,9 @@ func (s *Server) listAccount(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, errResponse(err))
 		return
 	}
-
+	authorPayLoad := c.MustGet(authorizationPayloadKey).(*token.Payload)
 	arg := db.ListAccountsParams{
+		Owner:  authorPayLoad.Username,
 		Limit:  req.PageSize,
 		Offset: (req.PageID - 1) * req.PageSize,
 	}
@@ -123,6 +134,14 @@ func (s *Server) updateAccount(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errResponse(err))
 		return
 	}
+
+	authorPayLoad := c.MustGet(authorizationPayloadKey).(*token.Payload)
+	if account.Owner != authorPayLoad.Username {
+		err := errors.New("Account is not belong to user is logged")
+		c.JSON(http.StatusBadRequest, errResponse(err))
+		return
+	}
+
 	var body updateAccountRequest
 	err = c.ShouldBindJSON(&body)
 	if err != nil {
@@ -170,6 +189,12 @@ func (s *Server) deleteAccount(c *gin.Context) {
 		}
 
 		c.JSON(http.StatusInternalServerError, errResponse(err))
+		return
+	}
+	authorPayLoad := c.MustGet(authorizationPayloadKey).(*token.Payload)
+	if account.Owner != authorPayLoad.Username {
+		err := errors.New("Account is not belong to user is logged")
+		c.JSON(http.StatusBadRequest, errResponse(err))
 		return
 	}
 

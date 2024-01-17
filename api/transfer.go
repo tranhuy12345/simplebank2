@@ -3,6 +3,8 @@ package api
 import (
 	"database/sql"
 	db "db/db/sqlc"
+	"db/token"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -26,16 +28,26 @@ func (s *Server) createTransfers(c *gin.Context) {
 		return
 	}
 	//Check currency
-	if !s.validAccount(c, req.FromAccountID, req.Currency) {
+	from_account, isValid := s.validAccount(c, req.FromAccountID, req.Currency)
+	if !isValid {
 		return
 	}
-	if !s.validAccount(c, req.ToAccountID, req.Currency) {
+
+	authorPayLoad := c.MustGet(authorizationPayloadKey).(*token.Payload)
+	if from_account.Owner != authorPayLoad.Username {
+		err := errors.New("Account is not belong to user is logged")
+		c.JSON(http.StatusBadRequest, errResponse(err))
+		return
+	}
+
+	to_account, isValid := s.validAccount(c, req.ToAccountID, req.Currency)
+	if !isValid {
 		return
 	}
 	//Insert vào database
 	arg := db.TransfersTxParams{
 		FromAccountID: req.FromAccountID,
-		ToAccountID:   req.ToAccountID,
+		ToAccountID:   to_account.ID,
 		Amount:        req.Amount,
 	}
 	results, err := s.store.TransfersTX(c, arg)
@@ -46,22 +58,22 @@ func (s *Server) createTransfers(c *gin.Context) {
 	c.JSON(http.StatusOK, results)
 }
 
-func (s *Server) validAccount(c *gin.Context, accountID int64, currency string) bool {
+func (s *Server) validAccount(c *gin.Context, accountID int64, currency string) (db.Accounts, bool) {
 	account, err := s.store.GetAccount(c, accountID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, errResponse(err))
-			return false
+			return account, false
 		}
 
 		c.JSON(http.StatusInternalServerError, errResponse(err))
-		return false
+		return account, false
 	}
 
 	if account.Currency != currency {
 		err := fmt.Errorf("account [%d] currency mismatch: %s vs %s", accountID, account.Currency, currency)
 		c.JSON(http.StatusBadRequest, errResponse(err))
-		return false
+		return account, false
 	}
-	return true
+	return account, true
 }

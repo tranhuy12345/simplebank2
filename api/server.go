@@ -12,10 +12,10 @@ import (
 )
 
 type Server struct {
-	config util.Config
-	store  db.Store
-	router *gin.Engine
-	token  token.Maker
+	config     util.Config
+	store      db.Store
+	router     *gin.Engine
+	tokenMaker token.Maker
 }
 
 // Tao 1 new server
@@ -26,9 +26,9 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 	}
 
 	server := &Server{
-		store:  store,
-		config: config,
-		token:  tokenMaker,
+		store:      store,
+		config:     config,
+		tokenMaker: tokenMaker,
 	}
 	server.setupRouter()
 	validator, ok := binding.Validator.Engine().(*validator.Validate)
@@ -45,13 +45,15 @@ func (s *Server) setupRouter() {
 	router.POST("/users/login", s.login)
 	router.POST("/users", s.createUser)
 
-	router.POST("/accounts", s.createAccount)
-	router.GET("/accounts/:id", s.getAccount)
-	router.GET("/accounts", s.listAccount)
-	router.PUT("/accounts/:id", s.updateAccount)
-	router.DELETE("/accounts/:id", s.deleteAccount)
+	authRoutes := router.Group("/").Use(authMiddleware(s.tokenMaker))
 
-	router.POST("/transfers", s.createTransfers)
+	authRoutes.POST("/accounts", s.createAccount)
+	authRoutes.GET("/accounts/:id", s.getAccount)
+	authRoutes.GET("/accounts", s.listAccount)
+	authRoutes.PUT("/accounts/:id", s.updateAccount)
+	authRoutes.DELETE("/accounts/:id", s.deleteAccount)
+
+	authRoutes.POST("/transfers", s.createTransfers)
 	s.router = router
 }
 
