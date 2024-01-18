@@ -31,7 +31,7 @@ jobs:
       env:
         REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         REPOSITORY: simplebank
-        IMAGE_TAG: latest
+        IMAGE_TAG: ${{ github.sha }}
       run: |
         echo "IMAGE_TAG: $IMAGE_TAG"
         echo "IMAGE_TAG: $REGISTRY/$REPOSITORY:$IMAGE_TAG"
