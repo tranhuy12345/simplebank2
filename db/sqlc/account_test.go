@@ -37,9 +37,6 @@ func TestListAccounts(t *testing.T) {
 	for i := 0; i < 5; i++ {
 		fmt.Println(listAccounts[i])
 	}
-	if err != nil {
-		log.Fatal(err)
-	}
-	require.NotZero(t, len(listAccounts))
+	require.NoError(t, err)
 
 }
