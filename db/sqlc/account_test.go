@@ -3,7 +3,6 @@ package db
 import (
 	"context"
 	"db/db/util"
-	"fmt"
 	"log"
 	"testing"
 
@@ -32,11 +31,7 @@ func TestAccount(t *testing.T) {
 }
 
 func TestListAccounts(t *testing.T) {
-	var listAccounts []ListQueryRow
-	listAccounts, err := testQueries.ListQuery(context.Background())
-	for i := 0; i < 5; i++ {
-		fmt.Println(listAccounts[i])
-	}
+	_, err := testQueries.ListQuery(context.Background())
 	require.NoError(t, err)
 
 }
