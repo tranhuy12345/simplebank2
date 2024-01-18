@@ -52,4 +52,4 @@ jobs:
       run: make migrationup
 
     - name: Test
-      run: make server
+      run: make test
