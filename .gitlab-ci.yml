@@ -41,9 +41,8 @@ before_script:
 unit-test-job:   # This job runs in the test stage.
   stage: test   # It only starts when the job in the build stage completes successfully.
   image: golang:1.21.6
-  before_script:
+  script:
    - make migrationup
-  script:  
    - make test
   services:
    - name: postgres:15.1
