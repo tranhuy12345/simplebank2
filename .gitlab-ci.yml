@@ -45,6 +45,7 @@ unit-test-job:   # This job runs in the test stage.
   image: golang:1.21.6
   script:
    - PGPASSWORD=123 psql -h $POSTGRES_HOST -p 5434 -U root -d simple_bank -c "SELECT 1"
+   - psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER -d $POSTGRES_DB -c "SHOW listen_addresses;"
   services:
    - name: postgres
      alias: postgres
