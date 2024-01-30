@@ -33,8 +33,8 @@ variables: # Variables
   POSTGRES_PORT: "5434:5432"
 
 before_script:
-  - apk update
-  - apk add curl tar
+  - apt-get update -qy
+  - apt-get install -y curl tar
   - curl -L https://github.com/golang-migrate/migrate/releases/download/v4.17.0/migrate.linux-amd64.tar.gz | tar xvz
   - chmod +x migrate
   - mv migrate /usr/local/bin/migrate
