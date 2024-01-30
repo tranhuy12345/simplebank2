@@ -25,12 +25,39 @@ stages:          # List of stages for jobs, and their order of execution
 #     - echo "Compiling the code..."
 #     - echo "Compile complete."
 
+variables: # Variables
+  POSTGRES_USER: "root"
+  POSTGRES_PASSWORD: "mysecret"
+  POSTGRES_DB: "simple_bank"
+  POSTGRES_HOST: "postgres"
+  POSTGRES_PORT: "5432"
+
+before-script:
+  - apk add --no-cache curl tar
+  - curl -L https://github.com/golang-migrate/migrate/releases/download/v4.17.0/migrate.linux-amd64.tar.gz | tar xvz
+  - chmod +x migrate
+  - mv migrate /usr/local/bin/migrate
+
 unit-test-job:   # This job runs in the test stage.
-  stage: test    # It only starts when the job in the build stage completes successfully.
+  stage: test   # It only starts when the job in the build stage completes successfully.
+  image: golang:1.21.6
   script:
-    - echo "Running unit tests... This will take about 60 seconds."
-    - sleep 60
-    - echo "Code coverage is 90%"
+   - make migrationup
+   - make test
+  service:
+   - name: postgres:15.1
+     alias: postgres
+     variables:
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+      POSTGRES_DB: $POSTGRES_DB
+    
+
+
+  # script:
+  #   - echo "Running unit tests... This will take about 60 seconds."
+  #   - sleep 60
+  #   - echo "Code coverage is 90%"
 
 # lint-test-job:   # This job also runs in the test stage.
 #   stage: test    # It can run at the same time as unit-test-job (in parallel).
