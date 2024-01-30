@@ -35,8 +35,8 @@ variables: # Variables
 before_script:
   - apk add --no-cache curl tar
   - curl -L https://github.com/golang-migrate/migrate/releases/download/v4.17.0/migrate.linux-amd64.tar.gz | tar xvz
-  - chmod +x migrate
   - mv migrate /usr/local/bin/migrate
+  - which migrate
 
 unit-test-job:   # This job runs in the test stage.
   stage: test   # It only starts when the job in the build stage completes successfully.
