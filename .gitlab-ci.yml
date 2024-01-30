@@ -32,7 +32,7 @@ variables: # Variables
   POSTGRES_HOST: "postgres"
   POSTGRES_PORT: "5432"
 
-before-script:
+before_script:
   - apk add --no-cache curl tar
   - curl -L https://github.com/golang-migrate/migrate/releases/download/v4.17.0/migrate.linux-amd64.tar.gz | tar xvz
   - chmod +x migrate
@@ -41,7 +41,7 @@ before-script:
 unit-test-job:   # This job runs in the test stage.
   stage: test   # It only starts when the job in the build stage completes successfully.
   image: golang:1.21.6
-  before-script:
+  before_script:
    - make migrationup
   script:  
    - make test
