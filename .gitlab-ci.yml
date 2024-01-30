@@ -44,7 +44,7 @@ unit-test-job:   # This job runs in the test stage.
   stage: test   # It only starts when the job in the build stage completes successfully.
   image: golang:1.21.6
   script:
-   - psql -h postgres -p 5432 -U root -d simple_bank -c "SELECT 1"
+   - PGPASSWORD=$POSTGRES_PASSWORD psql -h postgres -p 5432 -U root -d simple_bank -c "SELECT 1"
   services:
    - name: postgres:15
      alias: postgres
