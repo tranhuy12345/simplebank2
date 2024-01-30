@@ -30,7 +30,7 @@ variables: # Variables
   POSTGRES_PASSWORD: "mysecret"
   POSTGRES_DB: "simple_bank"
   POSTGRES_HOST: "postgres"
-  POSTGRES_PORT: "5432"
+  POSTGRES_PORT: "5434:5432"
 
 before_script:
   - apt-get update -qy
@@ -44,7 +44,7 @@ unit-test-job:   # This job runs in the test stage.
   image: golang:1.21.6
   script:
    - sleep 10
-   - migrate -path db/migration -database "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB?sslmode=disable" -verbose up
+   - make migrationup
    - make test
   services:
    - name: postgres:15.1
