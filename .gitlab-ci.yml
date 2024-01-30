@@ -45,7 +45,7 @@ unit-test-job:   # This job runs in the test stage.
    - make migrationup
   script:  
    - make test
-  service:
+  services:
    - name: postgres:15.1
      alias: postgres
      variables:
