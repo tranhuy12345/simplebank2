@@ -29,7 +29,7 @@ variables: # Variables
   POSTGRES_USER: "root"
   POSTGRES_PASSWORD: "123"
   POSTGRES_DB: "simple_bank"
-  POSTGRES_HOST: "localhost"
+  POSTGRES_HOST: "postgres"
   POSTGRES_PORT: "5432"
 
 before_script:
@@ -46,7 +46,7 @@ unit-test-job:   # This job runs in the test stage.
   script:
    - PGPASSWORD=123 psql -h $POSTGRES_HOST -p 5432 -U root -d simple_bank -c "SELECT 1"
   services:
-   - name: postgres:15
+   - name: postgres
      alias: postgres
      variables:
       POSTGRES_USER: $POSTGRES_USER
