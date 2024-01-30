@@ -27,7 +27,7 @@ stages:          # List of stages for jobs, and their order of execution
 
 variables: # Variables
   POSTGRES_USER: "root"
-  POSTGRES_PASSWORD: "mysecret"
+  POSTGRES_PASSWORD: "123"
   POSTGRES_DB: "simple_bank"
   POSTGRES_HOST: "postgres"
   POSTGRES_PORT: "5432"
@@ -44,7 +44,7 @@ unit-test-job:   # This job runs in the test stage.
   stage: test   # It only starts when the job in the build stage completes successfully.
   image: golang:1.21.6
   script:
-   - PGPASSWORD=mysecret psql -h postgres -p 5432 -U root -d simple_bank -c "SELECT 1"
+   - PGPASSWORD=123 psql -h postgres -p 5432 -U root -d simple_bank -c "SELECT 1"
   services:
    - name: postgres:15.1
      alias: postgres
