@@ -38,6 +38,7 @@ before_script:
   - curl -L https://github.com/golang-migrate/migrate/releases/download/v4.17.0/migrate.linux-amd64.tar.gz | tar xvz
   - chmod +x migrate
   - mv migrate /usr/local/bin/migrate
+  - apt-get install -y postgresql-client
 
 unit-test-job:   # This job runs in the test stage.
   stage: test   # It only starts when the job in the build stage completes successfully.
