@@ -46,7 +46,7 @@ unit-test-job:   # This job runs in the test stage.
   script:
    - psql -h postgres -p 5432 -U root -d simple_bank -c "SELECT 1"
   services:
-   - name: postgres:15.1
+   - name: postgres:15
      alias: postgres
      variables:
       POSTGRES_USER: $POSTGRES_USER
