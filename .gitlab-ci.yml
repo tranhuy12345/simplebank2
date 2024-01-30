@@ -54,7 +54,7 @@ unit-test-job:   # This job runs in the test stage.
       POSTGRES_PASSWORD: $POSTGRES_PASSWORD
       POSTGRES_DB: $POSTGRES_DB
       POSTGRES_HOST: $POSTGRES_HOST
-    
+     port: 5434:5432
 
 
   # script:
