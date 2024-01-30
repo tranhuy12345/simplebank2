@@ -47,7 +47,7 @@ unit-test-job:   # This job runs in the test stage.
    - make migrationup 
    - make test
   services:
-   - name: postgres:15.1
+   - name: 15-alpine
      alias: postgres
      variables:
       POSTGRES_USER: $POSTGRES_USER
