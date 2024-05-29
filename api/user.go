@@ -159,3 +159,5 @@ func (s *Server) login(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, res)
 }
+
+// Path: api/user.go
