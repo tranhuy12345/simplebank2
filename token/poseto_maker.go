@@ -25,12 +25,15 @@ func NewPasetoMaker(symmetricKey string) (Maker, error) {
 	return maker, nil
 }
 
-func (maker *PosetoMaker) CreateToken(username string, duration time.Duration) (string, error) {
+func (maker *PosetoMaker) CreateToken(username string, duration time.Duration) (string, *Payload, error) {
+	fmt.Println("duration: ", duration)
 	payload, err := NewPayLoad(username, duration)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
-	return maker.paseto.Encrypt(maker.symmetricKey, payload, nil)
+	fmt.Println("expired: ", payload.ExpiredAt)
+	token, err := maker.paseto.Encrypt(maker.symmetricKey, payload, nil)
+	return token, payload, nil
 }
 func (maker *PosetoMaker) VerifyToken(token string) (*Payload, error) {
 	payload := &Payload{}

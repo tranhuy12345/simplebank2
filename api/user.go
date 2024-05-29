@@ -4,10 +4,12 @@ import (
 	"database/sql"
 	db "db/db/sqlc"
 	"db/db/util"
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/lib/pq"
 )
 
@@ -39,7 +41,7 @@ func (s *Server) createUser(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errResponse(err))
 		return
 	}
-
+	fmt.Println("Vo1")
 	arg := db.CreateUserParams{
 		Username:     req.Username,
 		HashPassword: hashedPassword,
@@ -48,6 +50,7 @@ func (s *Server) createUser(c *gin.Context) {
 	}
 
 	user, err := s.store.CreateUser(c, arg)
+	fmt.Println("Vo2")
 	if err != nil {
 		errPq, ok := err.(*pq.Error)
 		if ok {
@@ -57,7 +60,6 @@ func (s *Server) createUser(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errResponse(err))
 		return
 	}
-
 	responseUser := newUsersResponse(user)
 
 	c.JSON(http.StatusOK, responseUser)
@@ -80,8 +82,12 @@ type loginUserRequest struct {
 }
 
 type loginUserResponse struct {
-	AccessToken  string       `json:"access_token"`
-	UserResponse userResponse `json:"user"`
+	SessionId             uuid.UUID    `json:"session_id"`
+	AccessToken           string       `json:"access_token"`
+	AccessTokenExpiresAt  time.Time    `json:"access_token_expires_at"`
+	RefreshToken          string       `json:"refresh_token"`
+	RefreshTokenExpiresAt time.Time    `json:"refresh_token_expires_at"`
+	UserResponse          userResponse `json:"user"`
 }
 
 func (s *Server) login(c *gin.Context) {
@@ -108,15 +114,48 @@ func (s *Server) login(c *gin.Context) {
 		return
 	}
 
-	token, err := s.tokenMaker.CreateToken(req.Username, s.config.AccessTokenDuration)
+	//Tao access Token
+	accessToken, accessPayload, err := s.tokenMaker.CreateToken(req.Username, s.config.AccessTokenDuration)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errResponse(err))
+		return
+	}
+
+	//Tao refresh token
+	refreshToken, refreshPayload, err := s.tokenMaker.CreateToken(
+		req.Username,
+		s.config.RefreshTokenDuration,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errResponse(err))
+		return
+	}
+	//fmt.Println("Refresh token", time.Unix(refreshPayload.ExpiredAt, 0))
+	//Tao sessions
+
+	arg := db.CreateSessionParams{
+		ID:           refreshPayload.ID,
+		Username:     user.Username,
+		RefreshToken: refreshToken,
+		UserAgent:    c.Request.UserAgent(),
+		ClientIp:     c.ClientIP(),
+		IsBlocked:    false,
+		ExpiresAt:    time.Unix(refreshPayload.ExpiredAt, 0),
+	}
+
+	sessions, err := s.store.CreateSession(c, arg)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errResponse(err))
 		return
 	}
 	userResponse := newUsersResponse(user)
 	res = loginUserResponse{
-		AccessToken:  token,
-		UserResponse: userResponse,
+		SessionId:             sessions.ID,
+		AccessToken:           accessToken,
+		AccessTokenExpiresAt:  time.Unix(accessPayload.ExpiredAt, 0),
+		RefreshToken:          refreshToken,
+		RefreshTokenExpiresAt: sessions.ExpiresAt,
+		UserResponse:          userResponse,
 	}
 	c.JSON(http.StatusOK, res)
 }

@@ -5,7 +5,7 @@ createdb:
 dropdb:
 	docker exec -it postgres15.1 dropdb simple_bank
 migrationup:
-	migrate -path db/migration -database "postgres://root:mysecret@postgres:5432/simple_bank?sslmode=disable" -verbose up
+	migrate -path db/migration -database "postgres://root:mysecret@localhost:5434/simple_bank?sslmode=disable" -verbose up
 migrationup1:
 	migrate -path db/migration -database "postgresql://root:mysecret@localhost:5434/simple_bank?sslmode=disable" -verbose up 1
 migrationdown:
@@ -22,4 +22,10 @@ server:
 	go run main.go
 createmagration:
 	migrate create -ext sql -dir db/migration -seq add_users
-.PHONY: createdb dropdb migrationup migrationdown tst server sqlc migrationdown1 migrationup1
+proto:
+	rm -f pb/*.go
+	protoc --proto_path=proto --go_out=pb --go_opt=paths=source_relative \
+    --go-grpc_out=pb --go-grpc_opt=paths=source_relative \
+	--grpc-gateway_out=pb --grpc-gateway_opt=paths=source_relative \
+    proto/*.proto
+.PHONY: createdb dropdb migrationup migrationdown tst server sqlc migrationdown1 migrationup1 proto
